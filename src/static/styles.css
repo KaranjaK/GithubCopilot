@@ -207,6 +207,21 @@ footer {
   flex: 0 0 32px;
 }
 
+/* Delete icon/button next to each participant */
+.participant-delete {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #c62828;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.participant-delete:hover {
+  background: rgba(198, 40, 40, 0.06);
+}
+
 .participant-name {
   font-size: 14px;
   color: #333;

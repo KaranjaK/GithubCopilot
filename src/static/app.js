@@ -69,10 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Build participants HTML: pretty header with count and a styled bulleted list or friendly empty state
         const participants = Array.isArray(details.participants) ? details.participants : [];
-        const participantsHtml = participants.length
-          ? `<div class="participants-header"><strong>Participants</strong><span class="participant-count">${participants.length}</span></div>
-             <ul class="participants-list">${participants.map(p => `<li class="participant-item"><span class="participant-avatar">${escapeHtml(initials(p))}</span><span class="participant-name">${escapeHtml(p)}</span></li>`).join("")}</ul>`
-          : `<div class="participants-header"><strong>Participants</strong><span class="participant-count">0</span></div><p class="no-participants">No participants yet</p>`;
+          const participantsHtml = participants.length
+           ? `<div class="participants-header"><strong>Participants</strong><span class="participant-count">${participants.length}</span></div>
+             <ul class="participants-list">${participants.map(p => `<li class="participant-item"><span class="participant-avatar">${escapeHtml(initials(p))}</span><span class="participant-name">${escapeHtml(p)}</span><button class="participant-delete" data-email="${escapeHtml(p)}" aria-label="Remove participant">✖</button></li>`).join("")}</ul>`
+           : `<div class="participants-header"><strong>Participants</strong><span class="participant-count">0</span></div><p class="no-participants">No participants yet</p>`;
 
         activityCard.innerHTML = `
           <h4>${escapeHtml(name)}</h4>
@@ -86,6 +86,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
         activitiesList.appendChild(activityCard);
 
+        // Handle clicks on delete icons inside this activity card (event delegation)
+        activityCard.addEventListener("click", async (ev) => {
+          const target = ev.target;
+          if (!target || !target.classList.contains("participant-delete")) return;
+
+          const email = target.getAttribute("data-email");
+          if (!email) return;
+
+          // Optional: confirm before removing
+          if (!confirm(`Remove ${email} from ${name}?`)) return;
+
+          try {
+            const resp = await fetch(`/activities/${encodeURIComponent(name)}/participants?email=${encodeURIComponent(email)}`, { method: "DELETE" });
+            const result = await resp.json();
+
+            if (resp.ok) {
+              messageDiv.textContent = result.message;
+              messageDiv.className = "success";
+              // Refresh activities to update UI
+              fetchActivities();
+            } else {
+              messageDiv.textContent = result.detail || "Failed to remove participant";
+              messageDiv.className = "error";
+            }
+          } catch (error) {
+            console.error("Error removing participant:", error);
+            messageDiv.textContent = "Failed to remove participant. Please try again.";
+            messageDiv.className = "error";
+          }
+
+          messageDiv.classList.remove("hidden");
+          setTimeout(() => messageDiv.classList.add("hidden"), 5000);
+        });
         // Add option to select dropdown
         const option = document.createElement("option");
         option.value = name;
@@ -119,6 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        // Refresh activities to show the newly registered participant
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
