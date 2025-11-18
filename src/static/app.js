@@ -26,16 +26,17 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  // Inject compact styles for the participants section to make it pretty
+  // Inject compact styles only if styles.css isn't already linked (avoid duplication)
   (function injectParticipantStyles() {
+    if (document.querySelector('link[href="styles.css"]')) return;
     const css = `
       .activity-card { padding: 12px; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 12px; }
       .participants { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e6e6e6; display:block; }
       .participants-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
       .participants strong { margin:0; color:#333; }
       .participant-count { background:#eef6ff; color:#0366d6; font-weight:600; padding:2px 8px; border-radius:999px; font-size:12px; }
-      .participants-list { margin:0; padding:0; color:#444; max-height:120px; overflow:auto; }
-      .participant-item { display:flex; align-items:center; gap:8px; margin:6px 0; list-style:none; padding:4px 6px; border-radius:6px; transition:background .15s; }
+      .participants-list { margin:0; padding:0; color:#444; max-height:120px; overflow:auto; list-style:none; }
+      .participant-item { display:flex; align-items:center; gap:8px; margin:6px 0; padding:4px 6px; border-radius:6px; transition:background .15s; }
       .participant-item:hover { background: #f7f9fc; }
       .participant-avatar { width:28px; height:28px; border-radius:50%; background:#e6f0ff; display:inline-flex; align-items:center; justify-content:center; color:#0366d6; font-weight:700; font-size:12px; flex:0 0 28px; }
       .participant-name { color:#222; }
